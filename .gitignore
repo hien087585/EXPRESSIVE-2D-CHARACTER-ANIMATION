@@ -1,0 +1,141 @@
+﻿# =============================================================================
+# .gitignore cho nhanh Student Audio-to-Landmark
+# Muc tieu: khong bao gio day du lieu nang / weights / output len Git.
+# =============================================================================
+
+# ------------------------------------------------------------------ DU LIEU NANG
+# Pickle trich xuat san (au / fl / emb / MEAD) - hang GB, nam tren Google Drive.
+*.pickle
+*.pkl
+data/
+/dataset/
+Data_*/
+**/Data_*/
+**/data_raw/
+**/stage_b_mead_out/
+**/*_landmark_package.zip
+
+# ---------------------------------------------------------------------- WEIGHTS
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+*.onnx
+*.bin
+checkpoints/
+checkpoint/
+ckpt/
+weights/
+runs/
+logs/
+lightning_logs/
+**/phaseA/
+**/phaseB/
+*.tfevents.*
+
+# ------------------------------------------------------------- KET QUA / RENDER
+*.npy
+*.npz
+*.mat
+*.h5
+outputs/
+output/
+out/
+results/
+*.mp4
+*.avi
+*.mov
+*.gif
+.virtual_display/
+
+# -------------------------------------------- NOTEBOOK: chi giu ban sach, khong output
+# Bo comment 2 dong duoi neu muon IGNORE hoan toan notebook da chay.
+# *.ipynb
+.ipynb_checkpoints/
+
+# ------------------------------------------------------------------------ PYTHON
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.dylib
+*.dll
+!facewarp/facewarp.exe
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+sdist/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.venv/
+venv/
+env/
+ENV/
+.python-version
+pip-wheel-metadata/
+site/
+
+# ------------------------------------------------------------------------ TESTING
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+hypothesis/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.pytype/
+
+# ------------------------------------------------------------------- JUPYTER / IDE
+.ipynb_checkpoints/
+profile_default/
+ipython_config.py
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ------------------------------------------------------- GOOGLE DRIVE / COLAB
+/content/drive/
+**/.shortcut-targets-by-id/
+drive/
+MyDrive/
+
+# ------------------------------------------------------------------- TAM / NHAP
+scratch/
+tmp/
+temp/
+*.tmp
+*.bak
+*.orig
+*.log
+!facewarp/*.log
+
+# ------------------------------------------------- LOCAL CONFIG (khong commit secret)
+.env
+.env.*
+!.env.example
+secrets.json
+credentials.json
+*token*.json
+local_config.py
+
+*.psd
+*.docx
+*.pyc

@@ -1,0 +1,29 @@
+# =============================================================================
+# Requirements cho nhanh Student Audio-to-Landmark (Phase A)
+# Pipeline: Audio (80D mel) -> StudentAudio2Landmark (1D-CNN + FC) -> 204 landmarks
+# =============================================================================
+
+# ----------------------------------------------------------- LOI TRAIN (bat buoc)
+torch>=2.0
+numpy>=1.24
+scipy>=1.10
+matplotlib>=3.7
+
+# -------------------------------------------------- PIPELINE DU LIEU / TIEN XU LY
+librosa
+soundfile
+pysptk
+pyworld
+
+# --------------------------------------------------- RENDER 2D / TIEN ICH HINH ANH
+opencv-python
+ffmpeg-python
+face_alignment
+scikit-learn
+pydub
+pynormalize
+
+# --------------------------------------------------------------------- GHI CHU
+# - Da loai bo cung voi module cu: resemblyzer (speaker encoder),
+#   tensorflow / menpo / menpofit (thirdparty/face_of_art), cac extras cua AutoVC.
+# - Tren Colab, torch da duoc cai san; chi can:  pip install -r requirements.txt
