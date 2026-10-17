@@ -6,6 +6,25 @@
 
 ![Pipeline](docs/pipeline.png)
 
+## Mục tiêu nghiên cứu
+
+Làm hoạt hình nhân vật nói chuyện (video bài giảng, trợ lý ảo, game, VTuber) tốn nhiều công chỉnh tay. Các mô hình đã công bố như MakeItTalk tạo được khẩu hình nhưng không có cảm xúc, muốn có cảm xúc thì phải gắn nhãn tay cho từng câu, và mô hình khá nặng (gần 20 triệu tham số).
+
+Dự án đặt ra bốn mục tiêu:
+
+1. **Khẩu hình chính xác mà nhẹ:** mô hình nhỏ hơn MakeItTalk nhiều lần nhưng khớp lời tốt hơn, chạy được trên CPU.
+2. **Cảm xúc lấy từ chính giọng nói:** bỏ bước gắn nhãn cảm xúc bằng tay.
+3. **Theo kịp cảm xúc thay đổi trong audio dài:** nhận ra lúc người nói chuyển từ bình thường sang giận hay vui.
+4. **Dùng được thật:** ảnh nhân vật bất kỳ (anime, hoạt hình, mặt người) + audio bất kỳ → video, có giao diện demo.
+
+Câu hỏi nghiên cứu:
+
+- Một mạng CNN nhỏ có thay được Transformer / LSTM nặng trong bài toán khẩu hình không?
+- Tách biểu cảm tĩnh (cả câu) khỏi chuyển động miệng (từng âm) có giúp mô hình học tốt hơn không?
+- Có thể tận dụng mô hình nghe cảm xúc lớn có sẵn (emotion2vec+) để sinh biểu cảm khuôn mặt, thay vì tự train từ đầu trên ít dữ liệu, không?
+
+Phạm vi: làm ở mức 68 điểm mặt rồi biến dạng ảnh (không sinh ảnh từng pixel); 3 cảm xúc trong demo (neutral, angry, happy); không có cử động đầu; giọng nói tiếng Anh của diễn viên.
+
 ## Kết quả chính
 
 Đo trên 4 người nói chưa từng xuất hiện khi train (bộ MEAD).
@@ -93,6 +112,27 @@ Trên Colab, mỗi notebook tự cài thư viện cần thiết. Chạy trên m�
 pip install -r requirements.txt
 ```
 
+## Dữ liệu, checkpoint và kết quả (Google Drive)
+
+Toàn bộ dữ liệu đã xử lý, checkpoint và kết quả của các phase nằm trong thư mục Drive [**DAT301m**](https://drive.google.com/drive/folders/1KaV-u_oFzL06sQpotcZhWayVLKmoq0ZS). Muốn chạy lại notebook, thêm lối tắt (Add shortcut to Drive) của thư mục này vào `MyDrive`; Cell 0 của mỗi notebook tự tìm đường dẫn.
+
+| Thư mục | Nội dung |
+| --- | --- |
+| [Data_student](https://drive.google.com/drive/folders/1uYDtQQwLglkdYr9iEFueLsjZFlQ50ZtI) | Dữ liệu đã xử lý + toàn bộ kết quả |
+| ├ [Data_maketalk_landmard_task_a](https://drive.google.com/drive/folders/17Bi8fdauuQrj-fZvjWkDoLqatpxnUfiC) | Dữ liệu Obama cho Phase A (mel + landmark) |
+| ├ [Data_emotion_mead_task_b](https://drive.google.com/drive/folders/1jOxdzWDUUwrhM4LKRvLPYvWXFa-7L2GL) | Landmark MEAD (Stage B), dữ liệu `phaseB_ready`, đặc trưng emotion2vec+ |
+| └ [student_a2l](https://drive.google.com/drive/folders/1oBZb5C32npb5anWjR0TKRbj8qZSPxwkV) | Checkpoint và output của từng phase: |
+| &nbsp;&nbsp;&nbsp;├ [phaseA](https://drive.google.com/drive/folders/1-gQP-sTU01kVVNVyqmGVxi03kBZEhhBl) | Mô hình học trò, đường loss, bảng đánh giá |
+| &nbsp;&nbsp;&nbsp;├ [phaseB](https://drive.google.com/drive/folders/1pBrX8Onwr7LK_vaXeqhRAcKOqs_Bb11t) | C4 và các biến thể B1–C5, `phaseB_evaluation.json` |
+| &nbsp;&nbsp;&nbsp;├ [phaseC_demo](https://drive.google.com/drive/folders/1TdcXdMUlZ4H05YBENzazcVA6kqRJ_7C0) | Video demo, ảnh biểu cảm, hình đánh giá audio nhiều cảm xúc |
+| &nbsp;&nbsp;&nbsp;├ [ser_mead](https://drive.google.com/drive/folders/1H3y1Oj-JLSVIBbnG8s4qKjjiAKVBkUvH) | SERNet (Phase D), ma trận nhầm lẫn |
+| &nbsp;&nbsp;&nbsp;├ [phaseE](https://drive.google.com/drive/folders/1ak3VCYX6LDk4wNouj93cSo2_gDIR4GZU) | Bảng và biểu đồ so với MakeItTalk |
+| &nbsp;&nbsp;&nbsp;├ [phaseF](https://drive.google.com/drive/folders/1K4xQSkgzU36xo3tlWaOuPOpFCbFyCnj-) | EmoBranch: `phaseF2_final.pth`, `phaseG_final.pth`, bảng đánh giá |
+| &nbsp;&nbsp;&nbsp;└ [makeittalk_ckpt](https://drive.google.com/drive/folders/1L8QaVQVoTaC9Hw3SCQsu2UrK__itdoFe) | Checkpoint MakeItTalk gốc dùng để so sánh |
+| [demo](https://drive.google.com/drive/folders/1wiwTm17j6iQwrWDnLxtcXWqs-ILTQ-Yk) | Video và tài liệu demo |
+
+Dữ liệu gốc MEAD, CREMA-D, RAVDESS không phân phối lại ở đây; tải từ trang của tác giả (bảng dưới).
+
 ## Dữ liệu
 
 | Bộ dữ liệu | Dùng cho |
@@ -102,7 +142,7 @@ pip install -r requirements.txt
 | [CREMA-D](https://github.com/CheyneyComputerScience/CREMA-D): 91 người, chỉ audio | Phase G |
 | [RAVDESS](https://zenodo.org/records/1188976): 24 diễn viên, chỉ audio | Phase G |
 
-Dữ liệu và checkpoint không đưa lên Git; chúng nằm trên Google Drive theo cấu trúc `DAT301m/Data_student/…`.
+Dữ liệu và checkpoint không đưa lên Git; xem mục Google Drive ở trên.
 
 ## Hạn chế
 
@@ -122,4 +162,7 @@ Phần do nhóm thực hiện: mô hình học trò `StudentAudio2Landmark`, C4,
 
 ## Nhóm thực hiện
 
-[Tên thành viên] · DAT301m
+- **Vũ Thị Thu Hiền**: thực hiện chính (thiết kế mô hình, huấn luyện, đánh giá, demo, báo cáo).
+- Cùng sự hỗ trợ của các thành viên trong nhóm.
+
+Đồ án môn DAT301m.
