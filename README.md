@@ -165,4 +165,4 @@ Phần do nhóm thực hiện: mô hình học trò `StudentAudio2Landmark`, C4,
 - **Vũ Thị Thu Hiền**: thực hiện chính (thiết kế mô hình, huấn luyện, đánh giá, demo, báo cáo).
 - Cùng sự hỗ trợ của các thành viên trong nhóm.
 
-Đồ án môn DAT301m.
+
