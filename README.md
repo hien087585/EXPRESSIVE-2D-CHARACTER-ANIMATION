@@ -1,168 +1,172 @@
 # Expressive 2D Character Animation
 
-**1 ảnh nhân vật 2D + 1 đoạn giọng nói → video nhân vật nói, khẩu hình khớp lời, biểu cảm theo cảm xúc trong giọng.**
+**One 2D character image + one speech clip → a talking video with lip sync and facial expressions that follow the emotion in the voice.**
 
-Đồ án môn DAT301m. Hệ thống gồm một mô hình khẩu hình nhỏ (3.29M tham số) và một nhánh cảm xúc học trực tiếp từ giọng nói, không cần ai gắn nhãn cảm xúc cho từng câu.
+Course project for DAT301m. The system combines a small lip-sync model (3.29M parameters) with an emotion branch that learns expressions directly from speech, so no one has to label the emotion of each sentence.
 
 ![Pipeline](docs/pipeline.png)
 
-## Mục tiêu nghiên cứu
+## Research goals
 
-Làm hoạt hình nhân vật nói chuyện (video bài giảng, trợ lý ảo, game, VTuber) tốn nhiều công chỉnh tay. Các mô hình đã công bố như MakeItTalk tạo được khẩu hình nhưng không có cảm xúc, muốn có cảm xúc thì phải gắn nhãn tay cho từng câu, và mô hình khá nặng (gần 20 triệu tham số).
+Animating talking characters (lecture videos, virtual assistants, games, VTubers) takes a lot of manual work. Published models such as MakeItTalk produce lip motion but no emotion; adding emotion usually requires a manual label for every sentence, and the models are fairly heavy (almost 20 million parameters).
 
-Dự án đặt ra bốn mục tiêu:
+The project sets four goals:
 
-1. **Khẩu hình chính xác mà nhẹ:** mô hình nhỏ hơn MakeItTalk nhiều lần nhưng khớp lời tốt hơn, chạy được trên CPU.
-2. **Cảm xúc lấy từ chính giọng nói:** bỏ bước gắn nhãn cảm xúc bằng tay.
-3. **Theo kịp cảm xúc thay đổi trong audio dài:** nhận ra lúc người nói chuyển từ bình thường sang giận hay vui.
-4. **Dùng được thật:** ảnh nhân vật bất kỳ (anime, hoạt hình, mặt người) + audio bất kỳ → video, có giao diện demo.
+1. **Accurate yet lightweight lip sync:** a model several times smaller than MakeItTalk that still syncs better and runs on a CPU.
+2. **Emotion taken from the voice itself:** remove manual emotion labelling.
+3. **Follow emotion changes in long audio:** detect when the speaker switches from neutral to angry or happy.
+4. **Usable in practice:** any character image (anime, cartoon, human face) + any audio → video, with a demo interface.
 
-Câu hỏi nghiên cứu:
+Research questions:
 
-- Một mạng CNN nhỏ có thay được Transformer / LSTM nặng trong bài toán khẩu hình không?
-- Tách biểu cảm tĩnh (cả câu) khỏi chuyển động miệng (từng âm) có giúp mô hình học tốt hơn không?
-- Có thể tận dụng mô hình nghe cảm xúc lớn có sẵn (emotion2vec+) để sinh biểu cảm khuôn mặt, thay vì tự train từ đầu trên ít dữ liệu, không?
+- Can a small 1D-CNN replace heavy Transformer / LSTM models for audio-driven lip motion?
+- Does separating the static expression (whole sentence) from mouth motion (per sound) help the model learn?
+- Can a large pretrained speech-emotion model (emotion2vec+) be reused to generate facial expressions, instead of training from scratch on little data?
 
-Phạm vi: làm ở mức 68 điểm mặt rồi biến dạng ảnh (không sinh ảnh từng pixel); 3 cảm xúc trong demo (neutral, angry, happy); không có cử động đầu; giọng nói tiếng Anh của diễn viên.
+Scope: works at the level of 68 facial landmarks followed by image warping (no pixel-level generation); 3 emotions in the demo (neutral, angry, happy); no head motion; English speech by actors.
 
-## Kết quả chính
+## Main results
 
-Đo trên 4 người nói chưa từng xuất hiện khi train (bộ MEAD).
+Measured on 4 speakers never seen during training (MEAD dataset).
 
-| | Mô hình của nhóm (C4) | MakeItTalk gốc |
+| | Our model (C4) | Original MakeItTalk |
 | --- | --- | --- |
-| Sai số khẩu hình toàn mặt (LMD, thấp là tốt) | **0.0414** | 0.0651 |
-| Tương quan độ mở miệng với mặt thật | **0.574** | 0.263 |
-| Nhận ra đúng cảm xúc trên mặt sinh ra (Emo-Acc) | **0.832** | 0.136 |
-| Số tham số | **3.29M** | 19.29M |
-| Thời gian cho 1 giây audio | **37 ms CPU · 5.2 ms GPU** | 27.7 ms GPU |
+| Full-face landmark error (LMD, lower is better) | **0.0414** | 0.0651 |
+| Mouth-opening correlation with the real face | **0.574** | 0.263 |
+| Emotion recognisable from the generated face (Emo-Acc) | **0.832** | 0.136 |
+| Parameters | **3.29M** | 19.29M |
+| Time per 1 s of audio | **37 ms CPU · 5.2 ms GPU** | 27.7 ms GPU |
 
-- Biểu cảm học từ giọng nói, không cần nhãn: tốt hơn mốc "đứng yên" **+18.6%** (cách cũ nhận nhãn rồi tra bảng: +15.2%).
-- Nhận cảm xúc theo thời gian trên audio ghép nhiều cảm xúc: **UAR 0.906**, bắt đúng **83%** điểm đổi cảm xúc trong ±1 giây, ngang emotion2vec+ (0.905).
+- Expressions learned from speech, no labels needed: **+18.6%** better than the "neutral face" baseline (previous approach, classify emotion then look up a table: +15.2%).
+- Emotion tracking over time on audio with mixed emotions: **UAR 0.906**, **83%** of emotion changes detected within ±1 s, on par with emotion2vec+ (0.905).
 
-| Ảnh đầu vào và biểu cảm sinh ra |
+| Input image and generated expressions |
 | --- |
-| ![Biểu cảm](docs/ket_qua_bieu_cam.png) |
+| ![Expressions](docs/expressions.png) |
 
 <details>
-<summary>Thêm hình: so với MakeItTalk, dải cảm xúc theo thời gian, màn hình demo</summary>
+<summary>More figures: comparison with MakeItTalk, emotion timeline, demo screens</summary>
 
-![So với MakeItTalk](docs/so_sanh_makeittalk.png)
+![Comparison with MakeItTalk](docs/makeittalk_comparison.png)
 
-![Cảm xúc theo thời gian](docs/cam_xuc_theo_thoi_gian.png)
+![Emotion timeline](docs/emotion_timeline.png)
 
-![Demo tab 1](docs/demo_tab1_cam_xuc.png)
+![Demo tab 1](docs/demo_tab1_emotion.png)
 
 ![Demo tab 2](docs/demo_tab2_video.png)
 
 </details>
 
-## Cách hoạt động
+## How it works
 
-Cùng một audio đi qua hai nhánh:
+The same audio goes through two branches:
 
-1. **Khẩu hình (nói gì):** audio → mel AutoVC (80 dải, 62.5 khung/giây) → mô hình học trò **C4** (1D-CNN + FC) → chuyển động hàm và miệng.
-2. **Cảm xúc (nói thế nào):** audio → **emotion2vec+** (có sẵn, đóng băng, cửa sổ 2.5 s) → **EmoBranch** (0.5M) → cảm xúc neutral / angry / happy theo thời gian và biểu cảm tĩnh toàn mặt. EmoBranch cũng đưa điều kiện cảm xúc vào C4.
+1. **Lip sync (what is said):** audio → AutoVC mel spectrogram (80 bands, 62.5 frames/s) → student model **C4** (1D-CNN + FC) → jaw and mouth motion.
+2. **Emotion (how it is said):** audio → **emotion2vec+** (pretrained, frozen, 2.5 s windows) → **EmoBranch** (0.5M) → neutral / angry / happy over time plus a static full-face expression. EmoBranch also feeds the emotion condition into C4.
 
-Hai nhánh gộp thành 68 điểm mặt mỗi khung, rồi được chuyển sang tỉ lệ khuôn mặt nhân vật, giới hạn độ mở miệng để chống méo, biến dạng ảnh và ghi ra video mp4 có tiếng.
+Both branches are merged into 68 facial landmarks per frame, retargeted to the character's face proportions, limited in mouth opening to prevent distortion, used to warp the image, and written to an mp4 video with sound.
 
-## Cấu trúc repo
+## Repository layout
 
 ```
-notebooks/            Notebook Colab, đánh số theo thứ tự chạy
-src/models/           model_audio2landmark.py: mô hình học trò StudentAudio2Landmark
-src/dataset/utils/    Trung bình / độ lệch chuẩn để chuẩn hoá mel
-scripts/              make_aligned.py (căn landmark Obama), check_emotion_pkg.py (kiểm tra gói MEAD)
-examples_cartoon/     Ảnh nhân vật mẫu và file điểm mặt (từ MakeItTalk)
-facewarp/             Công cụ biến dạng ảnh gốc của MakeItTalk (demo hiện không dùng)
-docs/                 Hình minh hoạ cho README
-Data_examble/, Data_student/   Thư mục giữ chỗ, mô tả cấu trúc dữ liệu trên Google Drive
+notebooks/            Colab notebooks, numbered in running order
+src/models/           model_audio2landmark.py: the StudentAudio2Landmark student model
+src/dataset/utils/    Mean / std used to normalise the mel spectrogram
+scripts/              make_aligned.py (align Obama landmarks), check_emotion_pkg.py (check MEAD packages)
+examples_cartoon/     Sample character images and landmark files (from MakeItTalk)
+facewarp/             Original MakeItTalk image-warping tool (not used by the current demo)
+docs/                 Figures for this README
+Data_examble/, Data_student/   Placeholder folders describing the data layout on Google Drive
 ```
 
-## Thứ tự chạy
+## Running order
 
-Mọi notebook chạy trên Google Colab. Mỗi notebook tự clone repo này để lấy mô hình, đọc dữ liệu và lưu kết quả lên Google Drive cho bước sau dùng tiếp.
+All notebooks run on Google Colab. Each notebook clones this repo to get the model, reads data and saves results to Google Drive for the next step.
 
-| # | Notebook | Làm gì | Lưu ra (trong `Data_student/student_a2l/`) |
+| # | Notebook | What it does | Output (in `Data_student/student_a2l/`) |
 | --- | --- | --- | --- |
-| 0a | `0a_stageA_makeittalk_landmarks` | Chạy MakeItTalk gốc lấy landmark theo audio | |
-| 0b | `0b_stageB_mead_landmarks` | Trích landmark MEAD bằng MediaPipe FaceLandmarker (478 → 68 điểm), đóng gói theo từng người | `Data_emotion_mead_task_b/stage_b_mead_out/` |
-| 1 | `1_phaseA_student` | Train mô hình học trò trên dữ liệu Obama | `phaseA/phaseA_student_best.pth` |
-| 2a | `2a_phaseB_prepare_data` | Đổi audio MEAD sang mel, ghép với landmark | `Data_emotion_mead_task_b/phaseB_ready/` |
-| 2b | `2b_phaseB_emotion_finetune` | Fine-tune trên MEAD, thêm cảm xúc, chọn **C4** | `phaseB/C4_motion_emo_e20_lr3e4/phaseB_best.pth` |
-| 3 | `3_phaseC_demo_render` | **Demo**: render video, màn hình Gradio, đánh giá audio nhiều cảm xúc | `phaseC_demo/` |
-| 4 | `4_phaseD_ser_mead` | Thử tự train nhận cảm xúc (SERNet), so với emotion2vec+ | `ser_mead/ser_best.pth` |
-| 5 | `5_phaseE_benchmark` | So với MakeItTalk gốc trên 480 clip, đo tốc độ | `phaseE/` |
-| 6 | `6_phaseF_emotion_from_audio` | Train EmoBranch (F: 8 cảm xúc, F2: neutral + angry + happy) | `phaseF/phaseF2_final.pth` |
-| 7 | `7_phaseG_teacher_student` | EmoBranch học thêm theo "thầy" emotion2vec+ trên CREMA-D, RAVDESS | `phaseF/phaseG_final.pth` |
+| 0a | `0a_stageA_makeittalk_landmarks` | Run the original MakeItTalk to obtain audio-driven landmarks | |
+| 0b | `0b_stageB_mead_landmarks` | Extract MEAD landmarks with MediaPipe FaceLandmarker (478 → 68 points), packaged per actor | `Data_emotion_mead_task_b/stage_b_mead_out/` |
+| 1 | `1_phaseA_student` | Train the student model on Obama data | `phaseA/phaseA_student_best.pth` |
+| 2a | `2a_phaseB_prepare_data` | Convert MEAD audio to mel and pair it with landmarks | `Data_emotion_mead_task_b/phaseB_ready/` |
+| 2b | `2b_phaseB_emotion_finetune` | Fine-tune on MEAD with emotion input, select **C4** | `phaseB/C4_motion_emo_e20_lr3e4/phaseB_best.pth` |
+| 3 | `3_phaseC_demo_render` | **Demo**: render video, Gradio interface, evaluation on mixed-emotion audio | `phaseC_demo/` |
+| 4 | `4_phaseD_ser_mead` | Train our own speech-emotion model (SERNet) and compare with emotion2vec+ | `ser_mead/ser_best.pth` |
+| 5 | `5_phaseE_benchmark` | Compare with the original MakeItTalk on 480 clips, measure speed | `phaseE/` |
+| 6 | `6_phaseF_emotion_from_audio` | Train EmoBranch (F: 8 emotions, F2: neutral + angry + happy) | `phaseF/phaseF2_final.pth` |
+| 7 | `7_phaseG_teacher_student` | Further train EmoBranch with emotion2vec+ as teacher on CREMA-D and RAVDESS | `phaseF/phaseG_final.pth` |
 
-### Chỉ muốn chạy demo
+### Running only the demo
 
-1. Có sẵn các checkpoint: `phaseB/…/phaseB_best.pth` (C4) và `phaseF/phaseG_final.pth` (hoặc `phaseF2_final.pth`) trên Drive.
-2. Mở `notebooks/3_phaseC_demo_render.ipynb` trên Colab (GPU), để `QUICK_UI = True`, chạy từ Cell 0 đến Cell 11.
-3. Mở link Gradio: tab 1 phân tích cảm xúc từ audio, tab 2 tải ảnh, bấm 5 điểm trên mặt (hoạt hình) hoặc để MediaPipe tự dò (mặt người), chọn audio và tạo video.
+1. Have the checkpoints on Drive: `phaseB/…/phaseB_best.pth` (C4) and `phaseF/phaseG_final.pth` (or `phaseF2_final.pth`).
+2. Open `notebooks/3_phaseC_demo_render.ipynb` on Colab (GPU), keep `QUICK_UI = True`, and run Cell 0 to Cell 11.
+3. Open the Gradio link: tab 1 analyses emotion in an audio clip; tab 2 takes an image, 5 clicked face points (cartoon) or MediaPipe auto-detection (human face), and an audio clip, then renders the video.
 
-Ảnh đầu vào cho kết quả tốt nhất: nhìn thẳng, miệng khép hoặc hé nhẹ, nền trơn, ảnh từ 512 px trở lên.
+Best input images: frontal face, mouth closed or slightly open, plain background, at least 512 px.
 
-## Cài đặt
+## Installation
 
-Trên Colab, mỗi notebook tự cài thư viện cần thiết. Chạy trên máy riêng:
+On Colab, each notebook installs what it needs. To run locally:
 
 ```
 pip install -r requirements.txt
 ```
 
-## Dữ liệu, checkpoint và kết quả (Google Drive)
+## Data, checkpoints and results (Google Drive)
 
-Toàn bộ dữ liệu đã xử lý, checkpoint và kết quả của các phase nằm trong thư mục Drive [**DAT301m**](https://drive.google.com/drive/folders/1KaV-u_oFzL06sQpotcZhWayVLKmoq0ZS). Muốn chạy lại notebook, thêm lối tắt (Add shortcut to Drive) của thư mục này vào `MyDrive`; Cell 0 của mỗi notebook tự tìm đường dẫn.
+Code comes straight from this repo (each notebook clones it when it runs). Only the [**Data_student**](https://drive.google.com/drive/folders/1uYDtQQwLglkdYr9iEFueLsjZFlQ50ZtI) folder is shared on Google Drive: processed data, checkpoints and the results of every phase.
 
-| Thư mục | Nội dung |
+To re-run the notebooks:
+
+1. Open the **Data_student** link, choose **Add shortcut to Drive**, and place the shortcut in `MyDrive`.
+2. Open a notebook on Colab. Cell 0 finds the `Data_student` folder through the shortcut. If it picks the wrong folder, set `DRIVE_ROOT_OVERRIDE`, e.g. `/content/drive/MyDrive/Data_student`.
+3. Notebooks `1_phaseA_student` and `2b_phaseB_emotion_finetune` contain the fixed path `/content/drive/MyDrive/DAT301m/Data_student`; change it to your shortcut path before running.
+
+| Folder in `Data_student` | Contents |
 | --- | --- |
-| [Data_student](https://drive.google.com/drive/folders/1uYDtQQwLglkdYr9iEFueLsjZFlQ50ZtI) | Dữ liệu đã xử lý + toàn bộ kết quả |
-| ├ [Data_maketalk_landmard_task_a](https://drive.google.com/drive/folders/17Bi8fdauuQrj-fZvjWkDoLqatpxnUfiC) | Dữ liệu Obama cho Phase A (mel + landmark) |
-| ├ [Data_emotion_mead_task_b](https://drive.google.com/drive/folders/1jOxdzWDUUwrhM4LKRvLPYvWXFa-7L2GL) | Landmark MEAD (Stage B), dữ liệu `phaseB_ready`, đặc trưng emotion2vec+ |
-| └ [student_a2l](https://drive.google.com/drive/folders/1oBZb5C32npb5anWjR0TKRbj8qZSPxwkV) | Checkpoint và output của từng phase: |
-| &nbsp;&nbsp;&nbsp;├ [phaseA](https://drive.google.com/drive/folders/1-gQP-sTU01kVVNVyqmGVxi03kBZEhhBl) | Mô hình học trò, đường loss, bảng đánh giá |
-| &nbsp;&nbsp;&nbsp;├ [phaseB](https://drive.google.com/drive/folders/1pBrX8Onwr7LK_vaXeqhRAcKOqs_Bb11t) | C4 và các biến thể B1–C5, `phaseB_evaluation.json` |
-| &nbsp;&nbsp;&nbsp;├ [phaseC_demo](https://drive.google.com/drive/folders/1TdcXdMUlZ4H05YBENzazcVA6kqRJ_7C0) | Video demo, ảnh biểu cảm, hình đánh giá audio nhiều cảm xúc |
-| &nbsp;&nbsp;&nbsp;├ [ser_mead](https://drive.google.com/drive/folders/1H3y1Oj-JLSVIBbnG8s4qKjjiAKVBkUvH) | SERNet (Phase D), ma trận nhầm lẫn |
-| &nbsp;&nbsp;&nbsp;├ [phaseE](https://drive.google.com/drive/folders/1ak3VCYX6LDk4wNouj93cSo2_gDIR4GZU) | Bảng và biểu đồ so với MakeItTalk |
-| &nbsp;&nbsp;&nbsp;├ [phaseF](https://drive.google.com/drive/folders/1K4xQSkgzU36xo3tlWaOuPOpFCbFyCnj-) | EmoBranch: `phaseF2_final.pth`, `phaseG_final.pth`, bảng đánh giá |
-| &nbsp;&nbsp;&nbsp;└ [makeittalk_ckpt](https://drive.google.com/drive/folders/1L8QaVQVoTaC9Hw3SCQsu2UrK__itdoFe) | Checkpoint MakeItTalk gốc dùng để so sánh |
-| [demo](https://drive.google.com/drive/folders/1wiwTm17j6iQwrWDnLxtcXWqs-ILTQ-Yk) | Video và tài liệu demo |
+| [Data_maketalk_landmard_task_a](https://drive.google.com/drive/folders/17Bi8fdauuQrj-fZvjWkDoLqatpxnUfiC) | Obama data for Phase A (mel + landmarks) |
+| [Data_emotion_mead_task_b](https://drive.google.com/drive/folders/1jOxdzWDUUwrhM4LKRvLPYvWXFa-7L2GL) | MEAD landmarks (Stage B), `phaseB_ready` data, emotion2vec+ features |
+| [student_a2l](https://drive.google.com/drive/folders/1oBZb5C32npb5anWjR0TKRbj8qZSPxwkV) | Checkpoints and outputs of each phase: |
+| &nbsp;&nbsp;&nbsp;├ [phaseA](https://drive.google.com/drive/folders/1-gQP-sTU01kVVNVyqmGVxi03kBZEhhBl) | Student model, loss curves, evaluation tables |
+| &nbsp;&nbsp;&nbsp;├ [phaseB](https://drive.google.com/drive/folders/1pBrX8Onwr7LK_vaXeqhRAcKOqs_Bb11t) | C4 and variants B1–C5, `phaseB_evaluation.json` |
+| &nbsp;&nbsp;&nbsp;├ [phaseC_demo](https://drive.google.com/drive/folders/1TdcXdMUlZ4H05YBENzazcVA6kqRJ_7C0) | Demo videos, expression images, mixed-emotion evaluation figures |
+| &nbsp;&nbsp;&nbsp;├ [ser_mead](https://drive.google.com/drive/folders/1H3y1Oj-JLSVIBbnG8s4qKjjiAKVBkUvH) | SERNet (Phase D), confusion matrix |
+| &nbsp;&nbsp;&nbsp;├ [phaseE](https://drive.google.com/drive/folders/1ak3VCYX6LDk4wNouj93cSo2_gDIR4GZU) | Tables and charts comparing with MakeItTalk |
+| &nbsp;&nbsp;&nbsp;├ [phaseF](https://drive.google.com/drive/folders/1K4xQSkgzU36xo3tlWaOuPOpFCbFyCnj-) | EmoBranch: `phaseF2_final.pth`, `phaseG_final.pth`, evaluation tables |
+| &nbsp;&nbsp;&nbsp;└ [makeittalk_ckpt](https://drive.google.com/drive/folders/1L8QaVQVoTaC9Hw3SCQsu2UrK__itdoFe) | Original MakeItTalk checkpoints used for comparison |
 
-Dữ liệu gốc MEAD, CREMA-D, RAVDESS không phân phối lại ở đây; tải từ trang của tác giả (bảng dưới).
+The original MEAD, CREMA-D and RAVDESS data are not redistributed here; download them from the authors' pages (table below).
 
-## Dữ liệu
+## Datasets
 
-| Bộ dữ liệu | Dùng cho |
+| Dataset | Used for |
 | --- | --- |
-| Obama (bản đã xử lý của MakeItTalk) | Phase A |
-| [MEAD](https://wywu.github.io/projects/MEAD/MEAD.html): 41 người, 8 cảm xúc × 3 mức | Phase B – G. Chia theo người: 33 train / 4 val / 4 test |
-| [CREMA-D](https://github.com/CheyneyComputerScience/CREMA-D): 91 người, chỉ audio | Phase G |
-| [RAVDESS](https://zenodo.org/records/1188976): 24 diễn viên, chỉ audio | Phase G |
+| Obama (preprocessed release from MakeItTalk) | Phase A |
+| [MEAD](https://wywu.github.io/projects/MEAD/MEAD.html): 41 speakers, 8 emotions × 3 intensities | Phases B – G. Split by speaker: 33 train / 4 val / 4 test |
+| [CREMA-D](https://github.com/CheyneyComputerScience/CREMA-D): 91 speakers, audio only | Phase G |
+| [RAVDESS](https://zenodo.org/records/1188976): 24 actors, audio only | Phase G |
 
-Dữ liệu và checkpoint không đưa lên Git; xem mục Google Drive ở trên.
+Data and checkpoints are not stored in Git; see the Google Drive section above.
 
-## Hạn chế
+## Limitations
 
-- Miệng mở nhỏ hơn thật (biên độ 0.62 so với 1.0) và hơi quá mượt.
-- Cảm xúc thể hiện chủ yếu qua biểu cảm tĩnh, chưa vào chuyển động; chưa học được cảm xúc mạnh hay nhẹ.
-- Demo chỉ dùng 3 cảm xúc (neutral, angry, happy); không có cử động đầu.
-- Chưa có khảo sát người xem (MOS).
+- The mouth opens less than in reality (amplitude ratio 0.62 vs 1.0) and motion is somewhat over-smoothed.
+- Emotion is expressed mainly through the static expression, not yet through motion; emotion intensity is not learned.
+- The demo uses only 3 emotions (neutral, angry, happy); no head motion.
+- No user study (MOS) yet.
 
-## Nguồn và ghi công
+## Credits and licences
 
-- **MakeItTalk** (Zhou và cộng sự, SIGGRAPH Asia 2020): [github.com/yzhou359/MakeItTalk](https://github.com/yzhou359/MakeItTalk). Phần đầu `src/models/model_audio2landmark.py`, `facewarp/`, `examples_cartoon/` và bộ trích mel AutoVC lấy từ đây, theo giấy phép của Adobe (chỉ dùng cho nghiên cứu).
-- **emotion2vec+ large** (Ma và cộng sự, 2024), chạy qua [FunASR](https://github.com/modelscope/FunASR): dùng đóng băng làm bộ trích đặc trưng cảm xúc và làm "thầy".
-- **MediaPipe** (Google): dò điểm mặt cho MEAD và cho ảnh mặt người trong demo.
-- Các bộ dữ liệu MEAD, CREMA-D, RAVDESS thuộc về tác giả gốc; xem giấy phép của từng bộ trước khi dùng.
+- **MakeItTalk** (Zhou et al., SIGGRAPH Asia 2020): [github.com/yzhou359/MakeItTalk](https://github.com/yzhou359/MakeItTalk). The first part of `src/models/model_audio2landmark.py`, `facewarp/`, `examples_cartoon/` and the AutoVC mel extractor come from this project, under Adobe's licence (research use only).
+- **emotion2vec+ large** (Ma et al., 2024), run through [FunASR](https://github.com/modelscope/FunASR): used frozen as the emotion feature extractor and as the teacher.
+- **MediaPipe** (Google): facial landmark detection for MEAD and for human-face images in the demo.
+- MEAD, CREMA-D and RAVDESS belong to their original authors; check each dataset's licence before use.
 
-Phần do nhóm thực hiện: mô hình học trò `StudentAudio2Landmark`, C4, SERNet, EmoBranch, huấn luyện thầy–trò, bộ dựng hình và giới hạn miệng, demo Gradio, toàn bộ quy trình đánh giá.
+Developed by the team: the `StudentAudio2Landmark` student model, C4, SERNet, EmoBranch, teacher–student training, the rendering pipeline and mouth limits, the Gradio demo, and the full evaluation protocol.
 
-## Nhóm thực hiện
+## Team
 
-- **Vũ Thị Thu Hiền**: thực hiện chính (thiết kế mô hình, huấn luyện, đánh giá, demo, báo cáo).
-- Cùng sự hỗ trợ của các thành viên trong nhóm.
+- **Vũ Thị Thu Hiền**: main author (model design, training, evaluation, demo, report).
+- With support from the other team members.
 
-
+DAT301m course project.
