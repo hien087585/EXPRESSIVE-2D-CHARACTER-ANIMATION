@@ -1,29 +1,29 @@
 # =============================================================================
-# Requirements cho nhanh Student Audio-to-Landmark (Phase A)
-# Pipeline: Audio (80D mel) -> StudentAudio2Landmark (1D-CNN + FC) -> 204 landmarks
+# Expressive 2D Character Animation - thu vien can cai
+# Tren Colab: torch da co san; moi notebook tu cai phan con thieu.
 # =============================================================================
 
-# ----------------------------------------------------------- LOI TRAIN (bat buoc)
+# ----------------------------------------------------------- MO HINH / TRAIN
 torch>=2.0
 numpy>=1.24
 scipy>=1.10
+scikit-learn
 matplotlib>=3.7
 
-# -------------------------------------------------- PIPELINE DU LIEU / TIEN XU LY
+# --------------------------------------------------------------- AUDIO
 librosa
 soundfile
-pysptk
-pyworld
-
-# --------------------------------------------------- RENDER 2D / TIEN ICH HINH ANH
-opencv-python
-ffmpeg-python
-face_alignment
-scikit-learn
 pydub
 pynormalize
+pysptk              # chi can cho notebook 0a (MakeItTalk goc)
+pyworld             # chi can cho notebook 0a (MakeItTalk goc)
 
-# --------------------------------------------------------------------- GHI CHU
-# - Da loai bo cung voi module cu: resemblyzer (speaker encoder),
-#   tensorflow / menpo / menpofit (thirdparty/face_of_art), cac extras cua AutoVC.
-# - Tren Colab, torch da duoc cai san; chi can:  pip install -r requirements.txt
+# ----------------------------------------------- NHAN CAM XUC (emotion2vec+)
+funasr
+modelscope
+
+# ------------------------------------------------- DIEM MAT / RENDER / DEMO
+mediapipe           # trich landmark MEAD (0b) va do diem anh mat nguoi (demo)
+opencv-python
+ffmpeg-python       # can them chuong trinh ffmpeg tren may
+gradio              # man hinh demo (notebook 3)

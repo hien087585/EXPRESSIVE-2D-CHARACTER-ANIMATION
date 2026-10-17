@@ -1,0 +1,29 @@
+# =============================================================================
+# Expressive 2D Character Animation - thu vien can cai
+# Tren Colab: torch da co san; moi notebook tu cai phan con thieu.
+# =============================================================================
+
+# ----------------------------------------------------------- MO HINH / TRAIN
+torch>=2.0
+numpy>=1.24
+scipy>=1.10
+scikit-learn
+matplotlib>=3.7
+
+# --------------------------------------------------------------- AUDIO
+librosa
+soundfile
+pydub
+pynormalize
+pysptk              # chi can cho notebook 0a (MakeItTalk goc)
+pyworld             # chi can cho notebook 0a (MakeItTalk goc)
+
+# ----------------------------------------------- NHAN CAM XUC (emotion2vec+)
+funasr
+modelscope
+
+# ------------------------------------------------- DIEM MAT / RENDER / DEMO
+mediapipe           # trich landmark MEAD (0b) va do diem anh mat nguoi (demo)
+opencv-python
+ffmpeg-python       # can them chuong trinh ffmpeg tren may
+gradio              # man hinh demo (notebook 3)
