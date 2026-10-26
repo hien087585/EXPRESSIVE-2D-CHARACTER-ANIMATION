@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+      <stop offset="0" stop-color="#cfe3f5"/><stop offset="1" stop-color="#8fb6dc"/>
+    </radialGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5a3a2e"/><stop offset="1" stop-color="#3b241c"/>
+    </linearGradient>
+    <radialGradient id="iris" cx="50%" cy="40%" r="60%">
+      <stop offset="0" stop-color="#b98be0"/><stop offset="0.6" stop-color="#7a4fb3"/><stop offset="1" stop-color="#3f2468"/>
+    </radialGradient>
+    <linearGradient id="cloth" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f1ec"/><stop offset="1" stop-color="#d9d3ca"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <!-- back hair (long) -->
+  <path d="M250 430 C230 250 360 150 512 150 C664 150 794 250 774 430 C790 600 800 760 840 900 L680 900 C650 800 640 720 640 640 L384 640 C384 720 374 800 344 900 L184 900 C224 760 234 600 250 430 Z" fill="url(#hair)"/>
+  <!-- shoulders / clothes -->
+  <path d="M190 1024 C200 880 320 820 430 800 L594 800 C704 820 824 880 834 1024 Z" fill="url(#cloth)" stroke="#2b1d18" stroke-width="5"/>
+  <path d="M430 800 L512 880 L594 800" fill="none" stroke="#2b1d18" stroke-width="5"/>
+  <path d="M470 840 L512 880 L554 840" fill="#7a4fb3" stroke="#2b1d18" stroke-width="4"/>
+  <!-- neck -->
+  <path d="M460 690 L460 800 C480 820 544 820 564 800 L564 690 Z" fill="#f3cdb3" stroke="#2b1d18" stroke-width="5"/>
+  <path d="M460 760 C490 780 534 780 564 760" fill="none" stroke="#e2ab90" stroke-width="10" opacity="0.6"/>
+  <!-- face -->
+  <path d="M322 420 C322 300 410 250 512 250 C614 250 702 300 702 420 C702 540 650 640 560 700 C540 714 484 714 464 700 C374 640 322 540 322 420 Z" fill="#fadccb" stroke="#2b1d18" stroke-width="5"/>
+  <!-- ears hidden by hair; side locks -->
+  <path d="M322 360 C300 470 300 600 330 700 C350 640 352 520 350 420 Z" fill="url(#hair)" stroke="#2b1d18" stroke-width="4"/>
+  <path d="M702 360 C724 470 724 600 694 700 C674 640 672 520 674 420 Z" fill="url(#hair)" stroke="#2b1d18" stroke-width="4"/>
+  <!-- bangs (above eyebrows, do not cover eyes) -->
+  <path d="M300 400 C300 230 420 175 512 175 C604 175 724 230 724 400 C700 360 680 340 650 330 C640 360 625 375 600 382 C600 350 590 332 572 322 C560 352 540 368 512 372 C484 368 464 352 452 322 C434 332 424 350 424 382 C399 375 384 360 374 330 C344 340 324 360 300 400 Z" fill="url(#hair)" stroke="#2b1d18" stroke-width="5"/>
+  <path d="M430 210 C470 200 520 205 560 222" fill="none" stroke="#8a6352" stroke-width="10" opacity="0.6" stroke-linecap="round"/>
+  <!-- blush -->
+  <ellipse cx="400" cy="545" rx="38" ry="16" fill="#f4a3a0" opacity="0.45"/>
+  <ellipse cx="624" cy="545" rx="38" ry="16" fill="#f4a3a0" opacity="0.45"/>
+  <!-- eyebrows -->
+  <path d="M378 405 C400 392 430 390 456 398" fill="none" stroke="#3b241c" stroke-width="7" stroke-linecap="round"/>
+  <path d="M568 398 C594 390 624 392 646 405" fill="none" stroke="#3b241c" stroke-width="7" stroke-linecap="round"/>
+  <!-- eyes -->
+  <g id="eyeL">
+    <path d="M372 470 C385 432 450 425 470 462 C462 505 384 510 372 470 Z" fill="#ffffff" stroke="#2b1d18" stroke-width="3"/>
+    <ellipse cx="420" cy="468" rx="27" ry="34" fill="url(#iris)" stroke="#2b1d18" stroke-width="3"/>
+    <ellipse cx="420" cy="472" rx="12" ry="16" fill="#24133d"/>
+    <circle cx="410" cy="455" r="9" fill="#ffffff"/>
+    <circle cx="430" cy="485" r="4" fill="#ffffff" opacity="0.8"/>
+    <path d="M362 462 C380 425 452 418 478 455" fill="none" stroke="#1d1210" stroke-width="9" stroke-linecap="round"/>
+    <path d="M366 460 L352 448 M372 450 L360 436" stroke="#1d1210" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g id="eyeR">
+    <path d="M652 470 C639 432 574 425 554 462 C562 505 640 510 652 470 Z" fill="#ffffff" stroke="#2b1d18" stroke-width="3"/>
+    <ellipse cx="604" cy="468" rx="27" ry="34" fill="url(#iris)" stroke="#2b1d18" stroke-width="3"/>
+    <ellipse cx="604" cy="472" rx="12" ry="16" fill="#24133d"/>
+    <circle cx="594" cy="455" r="9" fill="#ffffff"/>
+    <circle cx="614" cy="485" r="4" fill="#ffffff" opacity="0.8"/>
+    <path d="M662 462 C644 425 572 418 546 455" fill="none" stroke="#1d1210" stroke-width="9" stroke-linecap="round"/>
+    <path d="M658 460 L672 448 M652 450 L664 436" stroke="#1d1210" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <!-- nose -->
+  <path d="M514 545 L506 568 L518 570" fill="none" stroke="#d99a83" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- mouth (closed, neutral) -->
+  <path d="M482 622 C498 628 526 628 542 622" fill="none" stroke="#9c4a4f" stroke-width="5" stroke-linecap="round"/>
+  <path d="M496 636 C506 640 518 640 528 636" fill="none" stroke="#f0a7a0" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+  <!-- hair clip -->
+  <circle cx="650" cy="300" r="16" fill="#b98be0" stroke="#2b1d18" stroke-width="4"/>
+  <circle cx="676" cy="318" r="12" fill="#f6d36b" stroke="#2b1d18" stroke-width="4"/>
+</svg>

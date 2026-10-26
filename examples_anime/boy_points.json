@@ -1,0 +1,66 @@
+{
+ "image": "boy.png",
+ "size": [
+  1024,
+  1024
+ ],
+ "order": [
+  "mat_trai",
+  "mat_phai",
+  "mui",
+  "khoe_trai",
+  "khoe_phai",
+  "giua_moi_tren",
+  "giua_moi_duoi",
+  "may_trai_ngoai",
+  "may_trai_trong",
+  "may_phai_trong",
+  "may_phai_ngoai"
+ ],
+ "points": [
+  [
+   420,
+   470
+  ],
+  [
+   604,
+   470
+  ],
+  [
+   512,
+   565
+  ],
+  [
+   482,
+   622
+  ],
+  [
+   542,
+   622
+  ],
+  [
+   512,
+   624
+  ],
+  [
+   512,
+   628
+  ],
+  [
+   378,
+   405
+  ],
+  [
+   456,
+   398
+  ],
+  [
+   568,
+   398
+  ],
+  [
+   646,
+   405
+  ]
+ ]
+}

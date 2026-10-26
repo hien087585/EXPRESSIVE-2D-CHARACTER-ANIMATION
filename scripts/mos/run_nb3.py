@@ -26,7 +26,9 @@ nb = json.loads(NBP.read_text(encoding='utf-8'))
 C = [''.join(c['source']) for c in nb['cells']]
 g = {'__name__': '__main__'}
 exec(C[2], g)                                                           # Cell 0 (khong phai Colab: chi dinh nghia)
-c6 = C[6].replace('MOUTH_GAIN_PATH = None', 'MOUTH_GAIN_PATH = %r' % str(G / 'student_a2l' / 'phaseH' / 'mouth_gain.json'), 1)
+c6 = C[6]
+if not os.environ.get('NB3_NO_GAIN'):                                   # NB3_NO_GAIN=1: giu MOUTH_GAIN_PATH = None (tat het co)
+    c6 = c6.replace('MOUTH_GAIN_PATH = None', 'MOUTH_GAIN_PATH = %r' % str(G / 'student_a2l' / 'phaseH' / 'mouth_gain.json'), 1)
 exec(c6, g)                                                             # Cell 1
 # duong dan: doc tu G: (chi doc), ghi vao OUT
 g['REPO_DIR'] = REPO
@@ -238,6 +240,29 @@ elif JOB == 'dump':                                                     # khung 
         fr, _ = g['render'](y, timeline=tl, name='dump_' + mode, save=False, keep=True, verbose=False, mouth_redraw=True, brow_redraw=True)
         np.save(OUT / ('frames_%s.npy' % mode), np.stack(fr))
     print('dump ok')
+elif JOB == 'paper_demo':                                               # demo nhu bai bao theo duong man hinh demo (UI)
+    import cv2 as _cv
+    g['SHOW_EMOTION_LABEL'] = False
+    nm = ARGS[4] if len(ARGS) > 4 else 'anime_girl'                    # nhan vat anime mau (examples_anime), khong bam diem
+    print('UI mac dinh ve lai: anh moi %s | danbooru1 %s | anime_girl %s | anime_boy %s | anime_girl2 %s | bluehead %s | boy (MakeItTalk) %s'
+          % tuple(g['ui_redraw_default'](n) for n in (None, 'danbooru1', 'anime_girl', 'anime_boy', 'anime_girl2', 'bluehead', 'boy')))
+    print('UI danh sach nhan vat co anime mau:', [c for c in g['list_chars']() if c.startswith('anime_')])
+    print('UI gain: MOUTH_GAIN (Cell 1) %s | UI_GAIN %s | o gain mac dinh %s' % (
+        g['MOUTH_GAIN'] is not None, None if g['UI_GAIN'] is None else g['UI_GAIN']['chosen'], bool(g['UI_MOUTH_GAIN']) and g['UI_GAIN'] is not None))
+    redraw = brow = g['ui_pick_char'](nm, [])[0]
+    g['ensure_anime_example'](nm)                                      # = ui_render khi chon nhan vat mau
+    g['setup_character'](nm, verbose=False)
+    print('11 diem nap san:', {k: len(g['load_kp_json'](nm, k) or {}) for k in ('eye', 'mouth', 'brow')})
+    tl = [(0.0, 'neutral'), (secs / 3, 'happy_2'), (2 * secs / 3, 'angry_2')]
+    g0 = g['MOUTH_GAIN']; g['MOUTH_GAIN'] = g['UI_GAIN']               # = o "Mouth gain x1.85" dang bat
+    _, v = g['render'](y, timeline=tl, name='paper_demo', mouth_redraw=redraw, brow_redraw=brow)
+    g['MOUTH_GAIN'] = g0
+    X = dict(np.load(str(v)[:-4] + '_face_params.npz')); b = X['blink']
+    on = [i for i in range(1, len(b)) if b[i] >= 0.99 and b[i - 1] < 0.99]
+    print('timeline:', tl, '| gain:', None if g['UI_GAIN'] is None else g['UI_GAIN']['chosen'], '| ve lai mieng/may:', redraw, brow)
+    print('chop mat tai (s):', [round(i / 25, 2) for i in on], '| khoang cach:', np.round(np.diff(on) / 25, 2).tolist(),
+          '| hip mat %.0f%% khung | mi gian max %.2f' % (100 * (X['smile'] > 0.05).mean(), X['emo_angry'].max()))
+    print('VIDEO', v)
 elif JOB == 'mos':
     exec(open(S / 'mos_job.py', encoding='utf-8').read(), {'g': g, '__file__': str(S / 'mos_job.py'), '__name__': 'mos_job'})
 elif JOB == 's3':
