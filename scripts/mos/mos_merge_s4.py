@@ -1,4 +1,7 @@
-"""Gop S4 (Wav2Lip, do tro thu A lam) vao bo mu.
+"""CU - KHONG CHAY LAI: da thay bang mos_s4_from_avi.py (ma hoa tu AVI MJPEG cua A); ket qua cua script nay nam o
+_key\\raw\\s4_fixed_old\\. Chay lai se ghi de videos\\ va key.csv.
+
+Gop S4 (Wav2Lip, do tro thu A lam) vao bo mu.
 Ban goc cua A giu nguyen trong _key\\raw\\s4_rar\\hien\\mos\\wav2lip_outputs\\. Chi sua 2 loi ma hoa cua A:
   (1) luong H.264 cua A khong co nhan mau (mac dinh = limited) nhung du lieu la full range, he so BT.601 (do: giai ma
       601/full khop PNG ~1,0, cac cach khac 2,2-12,8) -> giai ma dung cach roi ma hoa lai limited, he so + nhan BT.709;
