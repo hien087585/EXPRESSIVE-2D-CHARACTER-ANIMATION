@@ -1,4 +1,5 @@
-"""Chay notebook 3 tren may (CPU), doc Drive G: CHI DOC, ghi ket qua vao thu muc out rieng.
+"""Chay notebook 3 tren may (CPU), doc Drive <DRIVE> CHI DOC, ghi ket qua vao thu muc out rieng.
+Duong dan may (<DRIVE>, <MOS_DIR>): scripts/local_paths.py (ELSA_* hoac local_paths.json o goc repo).
 python run_nb3.py <notebook> <out_dir> <job> [args...]
 job: equal <img> <pts json> <audio> <seconds>   -> frames .npz (de so sanh ban cu / moi khi TAT)
      demo  <img> <pts json> <audio> <seconds>   -> video bat + tat ve lai mieng
@@ -14,8 +15,10 @@ import numpy as np
 NBP, OUT, JOB = Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3]
 ARGS = sys.argv[4:]
 S = Path(__file__).parent
-REPO = Path(r'C:\hien\EXPRESSIVE-2D-CHARACTER-ANIMATION')
-G = Path(r'G:\.shortcut-targets-by-id\1KaV-u_oFzL06sQpotcZhWayVLKmoq0ZS\DAT301m (1)\Data_student')
+REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO / 'scripts'))
+from local_paths import local_path  # noqa: E402
+G = local_path('DRIVE')
 OUT.mkdir(parents=True, exist_ok=True)
 TMP = OUT / '_tmp'; TMP.mkdir(exist_ok=True)
 os.environ['PATH'] = str(S / 'bin') + os.pathsep + os.environ['PATH']
@@ -30,7 +33,7 @@ c6 = C[6]
 if not os.environ.get('NB3_NO_GAIN'):                                   # NB3_NO_GAIN=1: giu MOUTH_GAIN_PATH = None (tat het co)
     c6 = c6.replace('MOUTH_GAIN_PATH = None', 'MOUTH_GAIN_PATH = %r' % str(G / 'student_a2l' / 'phaseH' / 'mouth_gain.json'), 1)
 exec(c6, g)                                                             # Cell 1
-# duong dan: doc tu G: (chi doc), ghi vao OUT
+# duong dan: doc tu <DRIVE> (chi doc), ghi vao OUT
 g['REPO_DIR'] = REPO
 g['PHASEB'] = G / 'student_a2l' / 'phaseB'
 g['READY'] = G / 'Data_emotion_mead_task_b' / 'phaseB_ready'
@@ -224,9 +227,10 @@ elif JOB == 'angry3':
     g['MOUTH_REDRAW'] = g['BROW_REDRAW'] = True
     lab = lambda t, s: (_cv.putText(t, s, (8, 22), 0, 0.7, (0, 0, 0), 3, _cv.LINE_AA), _cv.putText(t, s, (8, 22), 0, 0.7, (255, 255, 255), 1, _cv.LINE_AA), t)[-1]
     rows = []
+    CHD = local_path('MOS_DIR') / 'characters'
     for nm in ('anime_girl', 'boy', 'girl2'):
-        im = _cv.cvtColor(_cv.imread(r'C:\hien\mos\characters\%s.png' % nm), _cv.COLOR_BGR2RGB)
-        P11 = [tuple(p) for p in json.loads(Path(r'C:\hien\mos\characters\%s_points.json' % nm).read_text())['points']]
+        im = _cv.cvtColor(_cv.imread(str(CHD / ('%s.png' % nm))), _cv.COLOR_BGR2RGB)
+        P11 = [tuple(p) for p in json.loads((CHD / ('%s_points.json' % nm)).read_text())['points']]
         g['setup_character'](nm, g['char_from_image'](im, P11, nm, True, True), verbose=False)
         a, n = g['still']('angry_2'), g['still']('neutral')
         c = lambda f: _cv.resize(f[270:400, 240:530], None, fx=2, fy=2, interpolation=_cv.INTER_CUBIC)
@@ -263,6 +267,10 @@ elif JOB == 'paper_demo':                                               # demo n
     print('chop mat tai (s):', [round(i / 25, 2) for i in on], '| khoang cach:', np.round(np.diff(on) / 25, 2).tolist(),
           '| hip mat %.0f%% khung | mi gian max %.2f' % (100 * (X['smile'] > 0.05).mean(), X['emo_angry'].max()))
     print('VIDEO', v)
+elif JOB == 'script':                                                   # chay 1 script hinh (vd fig_mouth_limits.py) trong notebook
+    sp = Path(ARGS[4])
+    exec(open(sp, encoding='utf-8').read(), {'g': g, 'A': A, 'y': y, 'img_rgb': img_rgb, 'pts': pts, 'OUT': OUT, 'secs': secs,
+                                             '__file__': str(sp), '__name__': 'fig_job'})
 elif JOB == 'mos':
     exec(open(S / 'mos_job.py', encoding='utf-8').read(), {'g': g, '__file__': str(S / 'mos_job.py'), '__name__': 'mos_job'})
 elif JOB == 's3':

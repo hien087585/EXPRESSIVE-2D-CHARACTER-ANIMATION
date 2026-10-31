@@ -1,0 +1,8 @@
+# Local environment for scripts/baselines/eval_baselines.py (Python 3.11, Windows).
+# MediaPipe was not pinned when the MEAD landmarks were extracted (notebook 0b: `pip install mediapipe`);
+# this pinned version is checked against the stored MEAD landmarks by `eval_baselines.py check`
+# (thresholds: mean < 0.002, max < 0.01 normalised face units). Model file: face_landmarker/float16/1.
+mediapipe==1.2.0
+opencv-contrib-python==5.0.0.93
+numpy==2.4.6
+scipy==1.17.1
