@@ -1,7 +1,8 @@
 """Fig. 9 (ban tieng Anh): timeline cam xuc tren file ghep M037_MIX1 (4 speaker test, ghep tu MEAD).
-Tren: xac suat 3 lop cua ensemble (SpEx-KD + lop phan loai goc emotion2vec+). Duoi: 4 dai Ground truth / ELSA (ensemble) /
-SpEx-KD / Teacher (emotion2vec+). Doc phaseC_demo/test_audio/M037_MIX1_timeline.npz (tao bang colab_mix_timeline_cell.py
-o cuoi notebook 3; chi doc Drive) -> <MOS_DIR>/_check/fig_timeline_en.png, 300 dpi.
+Tren: xac suat 3 lop cua ensemble (SpEx-KD + lop phan loai goc emotion2vec+). Duoi: 2 dai Ground truth / Predicted
+(= ELSA ensemble, sau Viterbi). Rong 2 cot (7 in), Arial / Liberation Sans, khong tieu de, 300 dpi.
+Doc M037_MIX1_timeline.npz (colab_mix_timeline_cell.py o cuoi notebook 3, hoac run_mix_timeline_local.py)
+-> <MOS_DIR>/_check/fig_timeline_en.png.
   python fig_timeline_en.py [npz] [png]
 Mac dinh npz = <DRIVE>/student_a2l/phaseC_demo/test_audio/M037_MIX1_timeline.npz (scripts/local_paths.py)."""
 import sys
@@ -23,10 +24,10 @@ NAME = {'neutral': 'Neutral', 'angry': 'Angry', 'happy': 'Happy'}
 z = np.load(SRC)
 cls, dur = [str(c) for c in z['classes']], float(z['dur'])
 print('%s | %.1f s | audio dung lai trung file: %s' % (z['name'], dur, bool(z['audio_identical'])))
-rows = [('Ground truth', z['gt_start'], z['gt_end'], z['gt_emo'])] + \
-       [(lab, z[k + '_start'], z[k + '_end'], z[k + '_emo']) for lab, k in (('ELSA (ensemble)', 'ens'), ('SpEx-KD', 'spex'), ('Teacher', 'teacher'))]
-plt.rcParams.update({'font.family': 'Arial', 'font.size': 12})
-fig, ax = plt.subplots(len(rows) + 1, 1, figsize=(6.0, 5.0), sharex=True, gridspec_kw=dict(height_ratios=[2.6] + [0.62] * len(rows)))
+rows = [('Ground truth', z['gt_start'], z['gt_end'], z['gt_emo']), ('Predicted', z['ens_start'], z['ens_end'], z['ens_emo'])]
+plt.rcParams.update({'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Liberation Sans'], 'font.size': 10})
+print('font:', matplotlib.font_manager.findfont(matplotlib.font_manager.FontProperties(family=['sans-serif'])))
+fig, ax = plt.subplots(len(rows) + 1, 1, figsize=(7.0, 3.4), sharex=True, gridspec_kw=dict(height_ratios=[2.6] + [0.62] * len(rows)))
 for j, c in enumerate(cls):
     ax[0].plot(z['ens_centers'], z['ens_prob'][:, j], color=COL[c], lw=1.6, label=NAME[c])
 ax[0].set_ylim(0, 1.02); ax[0].set_ylabel('Probability'); ax[0].grid(alpha=.3)
